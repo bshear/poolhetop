@@ -13,12 +13,8 @@ https://www.cde.state.co.us/assessment/coassess-dataandresults#summarydata
 * setup
 
 
-cd "/Users/bshear/Dropbox/GitHub/poolhetop/"
-
-
 local date: display %td_CCYY-NN-DD date(c(current_date), "DMY")
 di "`date'"
-
 
 clear all
 version 14.2

@@ -23,8 +23,6 @@ results.
 	
 	global run_ests 	= 1		// estimate models
 	global make_table	= 1		// summarize results
-
-	cd "/Users/bshear/Dropbox/GitHub/poolhetop/"
 	
 
 * ---------------------------------------------------------------------------- *
