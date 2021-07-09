@@ -22,8 +22,8 @@
 ## 0-sim-make-dofiles-pool.sh
 ## 0-sim-make-runfiles-pool.sh
 
-# update directory
-cd "/Users/bshear/Dropbox/GitHub/poolhetop/simulation/"
+# update directory as necessary
+# cd "...poolhetop/simulation/"
 
 # simulate count data
 statamp -e do 0-sim-make-counts.do
