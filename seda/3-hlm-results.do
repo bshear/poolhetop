@@ -13,8 +13,6 @@ clear all
 set more off
 version 14.2
 
-cd "/Users/bshear/Dropbox/GitHub/poolhetop/"
-
 global ests_folder	"seda"
 global outname		"hlm-table.dta"
 

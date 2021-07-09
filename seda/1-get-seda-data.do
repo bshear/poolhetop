@@ -6,8 +6,6 @@ clear all
 set more off
 version 14.2
 
-cd "/Users/bshear/Dropbox/GitHub/poolhetop/"
-
 * Load SEDA v2.1 data.
 * Please complete data use agreement at this link before loading:
 * https://edopportunity.org/get-the-data/

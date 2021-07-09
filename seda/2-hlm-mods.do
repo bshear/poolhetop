@@ -11,7 +11,6 @@ macro drop _all
 set type double
 set matsize 11000
 
-cd "Y:\GitHub\poolhetop\"
 
 // load data
 use "seda\SEDA_geodist_long_State_v21_sub.dta", clear
