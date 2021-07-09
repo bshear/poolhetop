@@ -34,12 +34,7 @@ program hetop2_lfw
 		if `i' == 1 local lleqn "${HET_f1} * ln(`p1')"
 		if `i' >  1 local lleqn "`lleqn' + ${HET_f`i'} * ln(`p`i'')"
 	}
-	
-	/*
-	qui replace `lnf' = $HET_f1 * ln(`p1') + $HET_f2 * ln(`p2') + ///
-						$HET_f3 * ln(`p3') + $HET_f4 * ln(`p4')
-	*/
-	
+		
 	qui replace `lnf' = `lleqn'
 	
 end
