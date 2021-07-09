@@ -1,7 +1,8 @@
 *! hetop2 v1.1 25jul2018
 * uses hetop2_lfw.ado and hetop2_p.ado
 
-* changed start vals to use iweights instead of fweights to allow non-integer frequency counts
+* changed start vals to use iweights instead of fweights to allow non-integer
+* frequency counts
 
 program define hetop2 , eclass sortpreserve
 	
@@ -175,7 +176,7 @@ program Estimate , eclass sortpreserve
 	local lnsigmaeqn	"ibn.`grpsd' `lnsigmaslope' , nocons"
 	
 	* ------------------------------------ *
-	* TODO: add code to get better starting values
+	* TODO: could add code to find better starting values
 	* not sure that will help speed, but it might
 	
 	
@@ -222,15 +223,6 @@ program Estimate , eclass sortpreserve
 	mat `b' = `b''
 	mat `V' = e(V)
 	
-*	g double mprime = .
-*	g double gprime = .
-*	g double sprime = .
-*	if "`bsd'" != "" {
-*		g double gprime_b0 = .
-*		g double gprime_b1 = .
-*		local gprime_vars "gprime_b0 gprime_b1"
-*	}
-	
 	qui levelsof `grpmn' , local(m)
 	local nm : word count `m'
 	mat `M'  = J(`nm',1,.)
@@ -241,7 +233,6 @@ program Estimate , eclass sortpreserve
 		local mnames "`mnames' mprime`g'"
 		local j = rownumb(`b', "means:`g'.`grpmn'")
 		mat `M'[`i',1] = `b'[`j',1]
-*		replace mprime = `b'[`j',1] if `grpmn' == `g'
 	}
 	mat rownames `M' = `mnames'
 	
@@ -258,7 +249,6 @@ program Estimate , eclass sortpreserve
 		local j = rownumb(`b', "lnsigma:`g'.`grpsd'")
 		mat `G'[`i',1] = `b'[`j',1]
 		mat `S'[`i',1] = exp(`G'[`i',1])
-*		replace gprime = `b'[`j',1] if `grpsd' == `g'
 	}
 
 	mat rownames `G' = `gnames'
@@ -269,8 +259,6 @@ program Estimate , eclass sortpreserve
 	
 	if "`bsd'" != "" {
 	
-*		qui levelsof `grpsd' , local(s)  // how many b0/b1 estimates?
-*		local ns1 : word count `s'
 		mat `G1' = J(`ns',1,.)		
 		qui forv i = 1/`ns' {
 			local g `: word `i' of `s''
@@ -307,9 +295,6 @@ program Estimate , eclass sortpreserve
 		matrix `G'  = `X'*`B'
 		matrix `GV' = `X'*`GbV'*`X''
 		
-*		replace gprime = gprime_b0 + gprime_b1*`bsd'
-*		replace sprime = exp(gprime)
-		
 		local r = rowsof(`G')
 		mat `S' = J(`r',1,.)
 		forv i = 1/`r' {
@@ -322,14 +307,8 @@ program Estimate , eclass sortpreserve
 	
 	tempname gprime_se mprime_se sprime_se
 	if rowsof(`GV') > 1 {
-		// NOTE: need to fix this part!!!
-		// now that standardizing is done with -predict- not as important
-		// but this should still be able to handle PHOP and return appropriate
-		// matrices. right now the problem is when there is only one SD estimate
-		// per dataset ... i.e. homop model separately in each one
-		// then, GV has more than one row, but really is just a big 0 matrix
-		*matrix `gprime_se' = vecdiag(cholesky(diag(vecdiag(`GV'))))'
-		*matrix `sprime_se' = vecdiag(cholesky(diag(vecdiag(`SV'))))'
+		// NOTE: this could be improved.
+		// now that standardizing is done with -predict- not urgent.
 		matrix `gprime_se' = J(rowsof(`GV'), 1,0)
 		matrix `sprime_se' = J(rowsof(`GV'), 1,0)
 	}
@@ -343,20 +322,12 @@ program Estimate , eclass sortpreserve
 	}
 	matrix `mprime_se' = vecdiag(cholesky(diag(vecdiag(`MV'))))'
 
-// old, from when we were going to have option to save estimates during
-// the command
-*	keep `uniqueid' mprime gprime sprime mprime_se gprime_se sprime_se ///
-*	`gprime_vars'
-*	tempfile estimates
-*	save "`estimates'"
 
 	* ------------------------------------ *
 	* return things
 	
 	if "`bsd'" != "" {
 		ereturn matrix gprime_b_vcov `GbV'
-*		ereturn matrix gprime_b1_se 
-*		ereturn matrix gprime_b0_se
 		ereturn matrix gprime_b1 `G1'
 		ereturn matrix gprime_b0 `G0'
 		ereturn matrix X `X'
@@ -397,10 +368,6 @@ program Estimate , eclass sortpreserve
 	Replay
 	
 	restore
-
-*	if "`generate'" != "" {
-*		qui merge 1:1 `uniqueid' using "`estimates'" , nogen
-*	}
 	
 end
 
