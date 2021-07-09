@@ -217,82 +217,12 @@ program define hetop2_p , rclass sortpreserve
 		matselrc `Vfull' `Vprime'		, r(`rmnames') c(`rmnames')
 		matselrc `Vfull' `Omegaprime'	, r(`rlnames') c(`rlnames')
 		matselrc `Vfull' `Lambdaprime'	, r(`rmnames') c(`rlnames')
-		
-		/*
-		
-		forv r = 1/`G' {
-			
-			local rmname `: word `r' of `rmnames''
-			local rlname `: word `r' of `rlnames''
-			
-*			matrix `Mprime'[`r',1] = `Bfull'[1,colnumb(`Bfull',"`rmname'")]
-*			matrix `Gprime'[`r',1] = `Bfull'[1,colnumb(`Bfull',"`rlname'")]
-			
-			forv c = 1/`G' {
-			
-				local cname `: word `c' of `rmnames''
 				
-				// vprime
-				
-				matrix `Vprime'[`r',`c'] = ///
-					`Vfull'[rownumb(`Vfull',"`rmname'"), ///
-							colnumb(`Vfull',"`cname'") ]
-				
-				
-				// omegaprime & lambdaprime
-
-				local cname `: word `c' of `rlnames''
-				
-				matrix `Omegaprime'[`r',`c'] = ///
-					`Vfull'[rownumb(`Vfull',"`rlname'"), ///
-							colnumb(`Vfull',"`cname'") ]
-				
-				matrix `Lambdaprime'[`r',`c'] = ///
-					`Vfull'[rownumb(`Vfull',"`rmname'"), ///
-							colnumb(`Vfull',"`cname'") ]
-				
-			}
-		}
-
-		noi di "vprime:"
-		noi mat lis `Vprime'
-		noi di "vprime2:"
-		noi mat lis Vprime2
-		
-		noi di "omegaprime:"
-		noi mat lis `Omegaprime'
-		noi di "omegaprime2:"
-		noi mat lis Omegaprime2
-
-		noi di "Lambdaprime:"
-		noi mat lis `Lambdaprime'
-		noi di "Lambdaprime2:"
-		noi mat lis Lambdaprime2
-
-		stop
-		
-		*/
-		
 		if "`status'" != "" noi di "	step 3..."		
 		
 		qui levelsof `grpsd'		
 		local grpsd_nlevels : word count `=r(levels)'
-		
-		/*
-		
-		REMOVED 8/12/16
-		don't need this anymore
-		and for cutscore identification, these will not be filled with 0s
-		gprime and lambdaprime will be filled with a constant
-		but omegaprime may not be
-		
-		if `grpsd_nlevels' == 1 {
-			matrix `Gprime'			= J(`G',1,0)
-			matrix `Lambdaprime'	= J(`G',`G',0)
-			matrix `Omegaprime'		= J(`G',`G',0)
-		}
-		*/
-		
+				
 		
 		* -------------------------------------------------------------------- *
 		// if linear trend specified, need to modify the Gprime, Omega, 
@@ -371,49 +301,13 @@ program define hetop2_p , rclass sortpreserve
 			if "`status'" != "" noi di "	D matrix..."
 			
 			matselrc `Vfull' `D' , r(`rmnames') c(`parmnames')
-
-			/*
-			local rows : word count `rmnames'
-			local cols = `=`parms'*2'
-			matrix `D' = J(`rows',`cols',.)
-						
-			forv r = 1/`rows' {
-				local rn `: word `r' of `rmnames''
-				forv c = 1/`cols' {
-					local cn `: word `c' of `parmnames''
-					matrix `D'[`r',`c'] = ///
-						`Vfull'[rownumb(`Vfull',"`rn'"), ///
-								colnumb(`Vfull',"`cn'")]
-				}
-			}
-			*/
 			
 			// create U matrix
 			
 			if "`status'" != "" noi di "	U matrix..."
 			
 			matselrc `Vfull' `U' , r(`parmnames') c(`parmnames')
-			
-			/*
-			matrix `U' = J(`cols', `cols', .)
-			forv r = 1/`cols' {
-				local rn `: word `r' of `parmnames''
-				forv c = 1/`cols' {
-					local cn `: word `c' of `parmnames''
-					matrix `U'[`r',`c'] = ///
-						`Vfull'[rownumb(`Vfull',"`rn'"), ///
-								colnumb(`Vfull',"`cn'")]
-				}
-			}
-			*/
-						
-			/*
-			matrix rowna `D' = `rmnames'
-			matrix colna `D' = `parmnames'
-			matrix rowna `U' = `parmnames'
-			matrix colna `U' = `parmnames'
-			*/
-		
+								
 			// transformed matrices
 			
 			matrix `Gprime'			= `X'*`B'
@@ -646,50 +540,6 @@ program define hetop2_p , rclass sortpreserve
 		merge 1:1 `uniqueid' using "`temp`d''" , nogen update
 	}
 	
-	}
-	
-end
-
-
-// OLD CODE:
-
-/*
-*hetop2_p predict means and gprime values
-
-program define hetop2_p
-	version 13.1
-	
-	syntax newvarname , [ mprime gprime sprime se ]
-	
-	local nopts : word count `mprime' `gprime' `sprime'
-	if `nopts' > 1 {
-		display as error "only one parameter may be predicted"
-		exit 498
-	}
-	if `nopts' == 0 {
-		display as error "please specify at least one parameter to be predicted"
-		exit 498
-	}
-	
-	if "`se'" == "" {
-		if "`mprime'" != "" _predict `typlist' `varlist' , xb eq(#1)
-		if "`gprime'" != "" _predict `typlist' `varlist' , xb eq(#2)
-		if "`sprime'" != "" {
-			tempvar xbs
-			qui _predict double `xbs' , xb eq(#2)
-			generate `typlist' `varlist' = exp(`xbs')
-		}
-	}
-	if "`se'" != "" {
-		if "`mprime'" != "" _predict `typlist' `varlist' , stdp eq(#1)
-		if "`gprime'" != "" _predict `typlist' `varlist' , stdp eq(#2)
-		if "`sprime'" != "" {
-			tempvar xbs stdps
-			qui _predict double `xbs' , xb eq(#2)
-			qui _predict double `stdps' , stdp eq(#2)
-			qui replace `stdps' = `stdps'^2
-			generate `typlist' `varlist' = ( exp(2*`xbs') * `stdps' )^.5
-		}		
 	}
 	
 end
